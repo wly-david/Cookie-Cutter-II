@@ -60,10 +60,10 @@ public class Player implements cc2.sim.Player {
 				int[] transform = new int[2];
 				if (max_i > max_j) {
 					transform[0]= 0;
-					transform[1]= max_j+1;
+					transform[1]= 2>max_i+1?2:max_i+1;
 				}
 				else {
-					transform[0]= max_i+1;
+					transform[0]= 2>max_i+1?2:max_i+1;
 					transform[1]= 0;
 				}
 

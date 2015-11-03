@@ -15,12 +15,14 @@ public class Player implements cc2.sim.Player {
 	
 //	private Shape last_shape = null;
 //	private Point last_pos = null;
-	private Move last_move = null;
+//	private Move last_move = null;
 //	private int[] transform = {2,0,0};
 
+	private int[][][] count0;
+	private int[][][] opponent_count0;
 	public Shape cutter(int length, Shape[] shapes, Shape[] opponent_shapes)
 	{
-		if (length == 11)
+		/*if (length == 11)
 		{
 			// Generate cutter of length 11
 			Point[] cutter = new Point [length];
@@ -37,7 +39,6 @@ public class Player implements cc2.sim.Player {
 			cutter[10] = new Point(1, 4);
 			return new Shape(cutter);
 		}
-		
 		if (length == 8)
 		{
 			// Generate cutter of length 11
@@ -52,8 +53,7 @@ public class Player implements cc2.sim.Player {
 			cutter[7] = new Point(0, 4);
 			return new Shape(cutter);
 		}
-		
-		/*if (length == 5)
+		if (length == 5)
 		{
 			// Generate cutter of length 5
 			Point[] cutter1 = new Point [length];
@@ -90,7 +90,6 @@ public class Player implements cc2.sim.Player {
 					cutter[i] = new Point(i, 0);
 			}
 		} */
-			
 			/*boolean sameAsOpponent = false;
 			
 			for (int i=0; i<opponent_shapes.length; i++)
@@ -100,7 +99,6 @@ public class Player implements cc2.sim.Player {
 					sameAsOpponent = true;
 				}
 			}
-			
 			if (!sameAsOpponent)
 			{
 				return shape1;
@@ -109,10 +107,7 @@ public class Player implements cc2.sim.Player {
 			{
 				return shape2;
 			}
-			
-			
 		}*/
-		
 		// check if first try of given cutter length
 		Point[] cutter = new Point [length];
 		if (row_2.length != cutter.length - 1) {
@@ -137,10 +132,9 @@ public class Player implements cc2.sim.Player {
 	public Move cut(Dough dough, Shape[] shapes, Shape[] opponent_shapes)
 	{
 		int side = dough.side();
-		int[][][] count =new int [side][side][shapes.length];
-		int[][][] opponent_count =new int [side][side][shapes.length];
+		count0 =new int [side][side][shapes.length];
+		opponent_count0 =new int [side][side][shapes.length];
 		for (int si = 0 ; si != shapes.length ; ++si) {
-			if (shapes[si] == null) continue;
 			for (int i = 0 ; i != dough.side() ; ++i){
 				for (int j = 0 ; j != dough.side() ; ++j) {
 					Point q = new Point(i, j);
@@ -149,7 +143,7 @@ public class Player implements cc2.sim.Player {
 						Shape s = rotations[ri];
 						if (dough.cuts(s, q)){
 							for (Point p : s)
-								count[p.i+q.i][p.j+q.j][si]++;
+								count0[p.i+q.i][p.j+q.j][si]++;
 						}
 					}
 					rotations = opponent_shapes[si].rotations();
@@ -157,12 +151,56 @@ public class Player implements cc2.sim.Player {
 						Shape s = rotations[ri];
 						if (dough.cuts(s, q)){
 							for (Point p : s)
-								opponent_count[p.i+q.i][p.j+q.j][si]++;
+								opponent_count0[p.i+q.i][p.j+q.j][si]++;
 						}
 					}
+					//Shape[] rotations = shapes[si].rotations();
+//					int [][][] rotation_matrix = {{{1,0},{0,1}},{{0,1},{1,0}},{{-1,0},{0,-1}},{{0,-1},{-1,0}}};
+//					for (int ri = 0 ; ri < 4; ++ri) {
+//						Shape s = shapes[si];
+//						int flag = 0;
+//						for (Point p : s){
+//							int x  = rotation_matrix[ri][0][0]*p.i+rotation_matrix[ri][0][1]*p.j;
+//							int y  = rotation_matrix[ri][1][0]*p.i+rotation_matrix[ri][1][1]*p.j;
+//							if (dough.uncut(x+q.i,y+q.j))
+//								flag++;
+//							else
+//								break;
+//						}
+//						if (flag == s.size())
+//							count0[q.i][q.j][si]++;
+//					}
+//					for (int ri = 0 ; ri < 4; ++ri) {
+//						Shape s = opponent_shapes[si];
+//						int flag = 0;
+//						for (Point p : s){
+//							int x  = rotation_matrix[ri][0][0]*p.i+rotation_matrix[ri][0][1]*p.j;
+//							int y  = rotation_matrix[ri][1][0]*p.i+rotation_matrix[ri][1][1]*p.j;
+//							if (dough.uncut(x+q.i,y+q.j))
+//								flag++;
+//							else
+//								break;
+//						}
+//						if (flag == s.size())
+//							opponent_count0[q.i][q.j][si]++;
+//					}
 				}
 			}
 		}
+//		for(int i=0;i<side;i++) {
+//			for(int j=0;j<side;j++) {
+//				System.out.print(count[i][j][0]+" ");
+//			}
+//			System.out.println();
+//		}
+//		System.out.println();
+//		for(int i=0;i<side;i++) {
+//			for(int j=0;j<side;j++) {
+//				System.out.print(opponent_count0[i][j][0]+" ");
+//			}
+//			System.out.println();
+//		}
+//		System.out.println();
 //		if (!dough.uncut()) {
 //			if (last_move != null) {
 //				Shape[] rotations = shapes[last_move.shape].rotations();
@@ -195,20 +233,21 @@ public class Player implements cc2.sim.Player {
 //			}
 //		}
 		// prune larger shapes if initial move
+		int minidx = -1;
 		if (dough.uncut()) {
 			int min = Integer.MAX_VALUE;
 			for (Shape s : shapes)
 				if (min > s.size())
 					min = s.size();
 			for (int s = 0 ; s != shapes.length ; ++s)
-				if (shapes[s].size() != min)
-					shapes[s] = null;
+				if (shapes[s].size() == min)
+					minidx = s;
 		}
 		// find all valid cuts
 		ArrayList <Move> moves = new ArrayList <Move> ();
-		int difference = Integer.MAX_VALUE;
+		int difference = Integer.MIN_VALUE;
 		for (int si = 0 ; si != shapes.length ; ++si) {
-			if (shapes[si] == null) continue;
+			if (si != minidx && dough.uncut()) continue;
 			for (int i = 0 ; i != dough.side() ; ++i){
 				for (int j = 0 ; j != dough.side() ; ++j) {
 					Point p = new Point(i, j);
@@ -216,18 +255,33 @@ public class Player implements cc2.sim.Player {
 					for (int ri = 0 ; ri != rotations.length; ++ri) {
 						Shape s = rotations[ri];
 						if (dough.cuts(s, p)) {
+							//Dough doughtmp = new Dough(dough.side());
+							//doughtmp.cut(s, p);
+							//int value = searchValue(dough,doughtmp,shapes,opponent_shapes);
 							int sum = 0;
 							for (Point q : s){
-								sum -= count[p.i+q.i][p.j+q.j][2];
-								sum += opponent_count[p.i+q.i][p.j+q.j][2];
+								sum -= count0[p.i+q.i][p.j+q.j][0];
+								sum -= count0[p.i+q.i][p.j+q.j][1];
+								sum -= count0[p.i+q.i][p.j+q.j][2];
+								sum += opponent_count0[p.i+q.i][p.j+q.j][0];
+								sum += opponent_count0[p.i+q.i][p.j+q.j][1];
+								sum += opponent_count0[p.i+q.i][p.j+q.j][2];
 							}
-							if (sum < difference){
+							if (sum > difference){
+								difference = sum;
 								moves.clear();
 								moves.add(new Move(si, ri, p));
 							}
 							else if (sum == difference){
 								moves.add(new Move(si, ri, p));
 							}
+//							if (value > difference){
+//								moves.clear();
+//								moves.add(new Move(si, ri, p));
+//							}
+//							else if (value == difference){
+//								moves.add(new Move(si, ri, p));
+//							}
 						}
 					}
 				}
@@ -237,9 +291,55 @@ public class Player implements cc2.sim.Player {
 		}
 		// return a cut randomly
 		Move rand_move = moves.get(gen.nextInt(moves.size()));
-		if (!dough.uncut()) {
-			last_move = rand_move;
-		}
+//		if (!dough.uncut()) {
+//			last_move = rand_move;
+//		}
 		return rand_move;
 	}
+//	private int searchValue (Dough dough, Dough doughtmp, Shape[] shapes, Shape[] opponent_shapes){
+//		int value = 0;
+//		int side = dough.side();
+//		int[][][] count =new int [side][side][shapes.length];
+//		int[][][] opponent_count =new int [side][side][shapes.length];
+//		for (int si = 0 ; si != shapes.length ; ++si) {
+//			for (int i = 0 ; i != dough.side() ; ++i){
+//				for (int j = 0 ; j != dough.side() ; ++j) {
+//					//Shape[] rotations = shapes[si].rotations();
+//					int [][][] rotation_matrix = {{{1,0},{0,1}},{{0,1},{1,0}},{{-1,0},{0,-1}},{{0,-1},{-1,0}}};
+//					for (int ri = 0 ; ri < 4; ++ri) {
+//						Shape s = shapes[si];
+//						int flag = 0;
+//						for (Point p : s){
+//							int x  = rotation_matrix[ri][0][0]*p.i+rotation_matrix[ri][0][1]*p.j;
+//							int y  = rotation_matrix[ri][1][0]*p.i+rotation_matrix[ri][1][1]*p.j;
+//							if (dough.uncut(x+i,y+j) && doughtmp.uncut(x+i,y+j))
+//								flag++;
+//							else
+//								break;
+//						}
+//						if (flag == s.size())
+//							count[i][j][si]++;
+//						
+//					}
+//					//value -=shapes[si].size()*(count0[i][j][si]-count[i][j][si]);
+//					for (int ri = 0 ; ri < 4; ++ri) {
+//						Shape s = opponent_shapes[si];
+//						int flag = 0;
+//						for (Point p : s){
+//							int x  = rotation_matrix[ri][0][0]*p.i+rotation_matrix[ri][0][1]*p.j;
+//							int y  = rotation_matrix[ri][1][0]*p.i+rotation_matrix[ri][1][1]*p.j;
+//							if (dough.uncut(x+i,y+j) && doughtmp.uncut(x+i,y+j))
+//								flag++;
+//							else
+//								break;
+//						}
+//						if (flag == s.size())
+//							opponent_count[i][j][si]++;
+//					}
+//					value +=shapes[si].size()*(opponent_count0[i][j][si]-opponent_count[i][j][si]);
+//				}
+//			}
+//		}
+//		return 0;
+//	}
 }

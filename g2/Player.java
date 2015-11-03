@@ -65,7 +65,7 @@ public class Player implements cc2.sim.Player {
 					for (int ri = 0 ; ri != rotations.length ; ++ri) {
 						Shape s = rotations[ri];
 						if (dough.cuts(s, p)) {
-							Dough trymove = getClone(dough);
+							Dough trymove = new ModdableDough(dough);
 							moves.put(new Move(si, ri, p), score(trymove, opponent_shapes));
 						}
 					}
@@ -73,38 +73,27 @@ public class Player implements cc2.sim.Player {
 			if(moves.size() > 0)
 				break;
 		}
-		// return a cut randomly
-		int bestScore = -1;
+		
+		// return cut resulting in lowest score
+		int bestScore = Integer.MAX_VALUE;
 		Move bestMove = null;
 		for(Move move : moves.keySet()) {
-			if(moves.get(move) > bestScore) {
+			if(moves.get(move) < bestScore) {
 				bestScore = moves.get(move);
 				bestMove = move;
 			}
 		}
 		System.out.println(moves.size());
-//		System.out.println(bestMove.shape+","+bestMove.rotation+","+bestMove.point);
-//		System.out.println(dough.cuts(shapes[2], new Point(0,0)));
 		return bestMove;
 	}
 	
-	private Dough getClone(Dough dough) {
-		Dough copy = null;
-		try {
-			copy = dough.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		return copy;
-	}
-	
 	public int score(Dough dough, Shape[] opponent_shapes) {
-		for(Shape largest : opponent_shapes) {
+		for(Shape nextLargestShape : opponent_shapes) {
 			int nmoves = 0;
 			for (int i = 0 ; i != dough.side() ; ++i) {
 				for (int j = 0 ; j != dough.side() ; ++j) {
 					Point p = new Point(i, j);
-					Shape[] rotations = largest.rotations();
+					Shape[] rotations = nextLargestShape.rotations();
 					for (int ri = 0 ; ri != rotations.length ; ++ri) {
 						Shape s = rotations[ri];
 						if (dough.cuts(s, p))
@@ -113,7 +102,7 @@ public class Player implements cc2.sim.Player {
 				}
 			}
 			if(nmoves > 0)
-				return nmoves;
+				return nmoves*nextLargestShape.size();
 		}
 		return 0;
 	}

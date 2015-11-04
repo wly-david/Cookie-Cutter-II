@@ -10,6 +10,7 @@ import java.util.*;
 public class Player implements cc2.sim.Player {
 
 	private boolean[] row_2 = new boolean [0];
+	private int[] row_2_pos;
 
 	private Random gen = new Random();
 	
@@ -113,13 +114,22 @@ public class Player implements cc2.sim.Player {
 		if (row_2.length != cutter.length - 1) {
 			// save cutter length to check for retries
 			row_2 = new boolean [cutter.length - 1];
+			row_2_pos = new int [cutter.length - 1];
+			for(int i = 0 ;i < row_2.length/2; i ++) {
+				row_2_pos[2*i] = i;
+				row_2_pos[2*i+1] = row_2.length-1-i;
+			}
+			if (row_2.length%2 == 1)
+				row_2_pos[row_2.length-1] = row_2.length/2;
 			for (int i = 0 ; i != cutter.length ; ++i)
 				cutter[i] = new Point(i, 0);
 		} else {
 			// pick a random cell from 2nd row but not same
 			int i;
+			int j=0;
 			do {
-				i = gen.nextInt(cutter.length - 1);
+				i = row_2_pos[j];
+				j++;
 			} while (row_2[i]);
 			row_2[i] = true;
 			cutter[cutter.length - 1] = new Point(i, 1);
@@ -194,13 +204,13 @@ public class Player implements cc2.sim.Player {
 //			System.out.println();
 //		}
 //		System.out.println();
-//		for(int i=0;i<side;i++) {
-//			for(int j=0;j<side;j++) {
-//				System.out.print(opponent_count0[i][j][0]+" ");
-//			}
-//			System.out.println();
-//		}
-//		System.out.println();
+		for(int i=0;i<side;i++) {
+			for(int j=0;j<side;j++) {
+				System.out.print(opponent_count0[i][j][0]+" ");
+			}
+			System.out.println();
+		}
+		System.out.println();
 //		if (!dough.uncut()) {
 //			if (last_move != null) {
 //				Shape[] rotations = shapes[last_move.shape].rotations();
@@ -260,7 +270,7 @@ public class Player implements cc2.sim.Player {
 							//int value = searchValue(dough,doughtmp,shapes,opponent_shapes);
 							int sum = 0;
 							for (Point q : s){
-								sum -= count0[p.i+q.i][p.j+q.j][0];
+//								sum -= count0[p.i+q.i][p.j+q.j][0];
 								sum -= count0[p.i+q.i][p.j+q.j][1];
 								sum -= count0[p.i+q.i][p.j+q.j][2];
 								sum += opponent_count0[p.i+q.i][p.j+q.j][0];

@@ -116,8 +116,10 @@ public class Player implements cc2.sim.Player {
 			row_2 = new boolean [cutter.length - 1];
 			row_2_pos = new int [cutter.length - 1];
 			for(int i = 0 ;i < row_2.length/2; i ++) {
-				row_2_pos[2*i] = i;
-				row_2_pos[2*i+1] = row_2.length-1-i;
+				//row_2_pos[2*i] = i;
+				//row_2_pos[2*i+1] = row_2.length-1-i;
+				row_2_pos[2*i] = row_2.length-1-i;
+				row_2_pos[2*i+1] = i;
 			}
 			if (row_2.length%2 == 1)
 				row_2_pos[row_2.length-1] = row_2.length/2;
@@ -204,12 +206,12 @@ public class Player implements cc2.sim.Player {
 //			System.out.println();
 //		}
 //		System.out.println();
-		for(int i=0;i<side;i++) {
+		/*for(int i=0;i<side;i++) {
 			for(int j=0;j<side;j++) {
 				System.out.print(opponent_count0[i][j][0]+" ");
 			}
 			System.out.println();
-		}
+		}*/
 		System.out.println();
 //		if (!dough.uncut()) {
 //			if (last_move != null) {
@@ -270,7 +272,7 @@ public class Player implements cc2.sim.Player {
 							//int value = searchValue(dough,doughtmp,shapes,opponent_shapes);
 							int sum = 0;
 							for (Point q : s){
-//								sum -= count0[p.i+q.i][p.j+q.j][0];
+								sum -= count0[p.i+q.i][p.j+q.j][0];
 								sum -= count0[p.i+q.i][p.j+q.j][1];
 								sum -= count0[p.i+q.i][p.j+q.j][2];
 								sum += opponent_count0[p.i+q.i][p.j+q.j][0];

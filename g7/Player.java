@@ -270,7 +270,7 @@ public class Player implements cc2.sim.Player {
 							//Dough doughtmp = new Dough(dough.side());
 							//doughtmp.cut(s, p);
 							//int value = searchValue(dough,doughtmp,shapes,opponent_shapes);
-							int sum = 0;
+							int sum = s.size();
 							for (Point q : s){
 								sum -= count0[p.i+q.i][p.j+q.j][0];
 								sum -= count0[p.i+q.i][p.j+q.j][1];
@@ -298,8 +298,8 @@ public class Player implements cc2.sim.Player {
 					}
 				}
 			}
-			if (moves.size() > 0)
-				break;
+//			if (moves.size() > 0)
+//				break;
 		}
 		// return a cut randomly
 		Move rand_move = moves.get(gen.nextInt(moves.size()));

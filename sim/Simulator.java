@@ -78,6 +78,8 @@ class Simulator {
 		}
 		System.err.println("1st player scored " + score[0]);
 		System.err.println("2nd player scored " + score[1]);
+		System.out.println("1st player scored " + score[0]);
+		System.out.println("2nd player scored " + score[1]);
 		System.exit(0);
 	}
 

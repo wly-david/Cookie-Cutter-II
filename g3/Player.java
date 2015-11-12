@@ -60,7 +60,7 @@ public class Player implements cc2.sim.Player {
 		}
 	    }
 	    if (points.size() == length) { 
-		System.out.println("Denied!");
+//		System.out.println("Denied!");
 		denied = true;
 		Point[] cutter = new Point[points.size()];
 		return new Shape(points.toArray(cutter));
@@ -77,7 +77,7 @@ public class Player implements cc2.sim.Player {
 		if (space.uncut(i,j)) {return new Point(i,j);}
 	    }
 	}
-	System.out.println("No available points");
+//	System.out.println("No available points");
 	return null;
     }
 
@@ -355,13 +355,13 @@ public class Player implements cc2.sim.Player {
 	int minWidth = getMinWidth(opponent_shapes[0]);	
 	Move A = find_cut(dough, createPaddedBoard(dough, minWidth-1, minWidth-1, minWidth-1), shapes, opponent_shapes, 0); // pad all directions with minwidth
 	if (A != null) {
-	    System.out.println("Move A");
+//	    System.out.println("Move A");
 	    return A;
 	}
 	else {
 	    Move B = find_cut(dough, createPaddedBoard(dough, minWidth / 2 - 1, minWidth / 2 - 1, getMinWidth(opponent_shapes[1]) / 2 - 1), shapes, opponent_shapes, 0); // pad all directions with minwidth / 2
 	    if (B != null && minWidth / 2 - 1 > 0) {
-		System.out.println("Move B");
+//		System.out.println("Move B");
 		switch_threshold = 200;
 		return B;
 	    }
@@ -392,7 +392,7 @@ public class Player implements cc2.sim.Player {
 		//else { 
 		    gameState state = new gameState(dough, true, shapes, opponent_shapes);
 		    gameState opt_state = minimax(state, minimax_search_depth, minimax_cutter_index);
-		    System.out.println("Move D");
+//		    System.out.println("Move D");
 		    if (opt_state.move_history.size() == 0) {
 			return random_move(state);
 		    }

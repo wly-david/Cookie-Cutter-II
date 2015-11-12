@@ -232,23 +232,23 @@ public class Player implements cc2.sim.Player {
 //			}
 //		}
 		
-		System.out.println("Printing my count for 11 shape ");
-		for(int i=0;i<side;i++) {
-			for(int j=0;j<side;j++) {
-				System.out.print(count0[i][j][0]+" ");
-			}
-			System.out.println();
-		}
-		
-		System.out.println("Printing opponents count for 11 shape ");
-		
-		System.out.println();
-		for(int i=0;i<side;i++) {
-			for(int j=0;j<side;j++) {
-				System.out.print(opponent_count0[i][j][0]+" ");
-			}
-			System.out.println();
-		}
+//		System.out.println("Printing my count for 11 shape ");
+//		for(int i=0;i<side;i++) {
+//			for(int j=0;j<side;j++) {
+//				System.out.print(count0[i][j][0]+" ");
+//			}
+//			System.out.println();
+//		}
+//		
+//		System.out.println("Printing opponents count for 11 shape ");
+//		
+//		System.out.println();
+//		for(int i=0;i<side;i++) {
+//			for(int j=0;j<side;j++) {
+//				System.out.print(opponent_count0[i][j][0]+" ");
+//			}
+//			System.out.println();
+//		}
 //		System.out.println();
 //		for(int i=0;i<side;i++) {
 //		for(int j=0;j<side;j++) {
@@ -389,7 +389,7 @@ public class Player implements cc2.sim.Player {
 		
 		Move rand_move = moves.peek().move;
 		
-		System.out.println("Size of the moves : " + moves.size());
+//		System.out.println("Size of the moves : " + moves.size());
 		
 		
 //		if (!dough.uncut()) {

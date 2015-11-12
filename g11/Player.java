@@ -1,5 +1,6 @@
 package cc2.g11;
 
+import cc2.g11.MoveWrapper;
 import cc2.sim.Point;
 import cc2.sim.Shape;
 import cc2.sim.Dough;
@@ -120,8 +121,32 @@ public class Player implements cc2.sim.Player {
 					minidx = s;
 		}
 		// find all valid cuts
-		ArrayList <Move> moves = new ArrayList <Move> ();
-		
+        PriorityQueue<MoveWrapper> moves = new PriorityQueue<MoveWrapper>(
+                new Comparator<MoveWrapper>()
+                {
+                    public int compare( MoveWrapper x, MoveWrapper y )
+                    {
+                        if(y.cutter_size != x.cutter_size) {
+                            return y.cutter_size - x.cutter_size;
+                        }
+                        else if ( (y.sum11 - x.sum11 ) != 0)
+                        {
+                            return (y.sum11 - x.sum11);
+                        }
+                        else if ( (y.sum8 - x.sum8 ) != 0)
+                        {
+                            return (y.sum8 - x.sum8);
+                        }
+                        else if ( (y.sum5 - x.sum5 ) != 0)
+                        {
+                            return (y.sum5 - x.sum5);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }
+                });
 
 		double difference = Integer.MIN_VALUE;
 		for (int si = 0 ; si != shapes.length ; ++si) {
@@ -134,6 +159,9 @@ public class Player implements cc2.sim.Player {
 						Shape s = rotations[ri];
 						if (dough.cuts(s, p)) {
 							double sum = s.size();
+							int sum11 = 0;
+							int sum8 = 0;
+							int sum5 = 0;
 //							double sum = 0;							
 //							HashSet<Integer> s0 = new HashSet<Integer>();
 //							HashSet<Integer> s1 = new HashSet<Integer>();
@@ -142,12 +170,12 @@ public class Player implements cc2.sim.Player {
 //							HashSet<Integer> o1 = new HashSet<Integer>();
 //							HashSet<Integer> o2 = new HashSet<Integer>();
 							for (Point q : s){
-								sum -= count0[p.i+q.i][p.j+q.j][0]*11.0*11.0/s.size()/s.size();
-								sum -= count0[p.i+q.i][p.j+q.j][1]*8.0*8.0/s.size()/s.size();
-								sum -= count0[p.i+q.i][p.j+q.j][2]*5.0*5.0/s.size()/s.size();
-								sum += opponent_count0[p.i+q.i][p.j+q.j][0];
-								sum += opponent_count0[p.i+q.i][p.j+q.j][1];
-								sum += opponent_count0[p.i+q.i][p.j+q.j][2];
+								sum11 -= count0[p.i+q.i][p.j+q.j][0]*11.0*11.0/s.size()/s.size();
+								sum8 -= count0[p.i+q.i][p.j+q.j][1]*8.0*8.0/s.size()/s.size();
+								sum5 -= count0[p.i+q.i][p.j+q.j][2]*5.0*5.0/s.size()/s.size();
+								sum11 += opponent_count0[p.i+q.i][p.j+q.j][0];
+								sum8 += opponent_count0[p.i+q.i][p.j+q.j][1];
+								sum5 += opponent_count0[p.i+q.i][p.j+q.j][2];
 								
 //								int idx;
 //								idx = 0 * side * side + (p.i+q.i) * side + p.j+q.j;
@@ -162,27 +190,30 @@ public class Player implements cc2.sim.Player {
 							}
 //							sum = s.size() + o0.size()*11.0+o1.size()*8.0+o2.size()*5.0
 //									- (s0.size()*11.0*11.0/s.size()/s.size()+s1.size()*8.0*8.0/s.size()/s.size()+s2.size()*5.0*5.0/s.size()/s.size());
-							
+							sum +=sum11+sum8+sum5;
 							if (sum > difference){
 								difference = sum;
 								moves.clear();
-								moves.add(new Move(si, ri, p));
+//								moves.add(new Move(si, ri, p));
+                                moves.offer(new MoveWrapper(new Move(si, ri, p), sum11, sum8, sum5, s.size()));
 								
 							}
 							else if (sum == difference){
-								moves.add(new Move(si, ri, p));
+//								moves.add(new Move(si, ri, p));
+                                moves.offer(new MoveWrapper(new Move(si, ri, p), sum11, sum8, sum5, s.size()));
 							}
 						}
 					}
 				}
 			}
-//			if (moves.size() > 0)
-//				break;
+			if (moves.size() > 0)
+				break;
 		}
 		// return a cut randomly
-		
-		Move rand_move = moves.get(gen.nextInt(moves.size()));
-		return rand_move;
+
+        return moves.peek().move;
+//		Move rand_move = moves.get(gen.nextInt(moves.size()));
+//		return rand_move;
 	}
 
 }

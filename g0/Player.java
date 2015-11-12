@@ -1,5 +1,6 @@
 package cc2.g0;
 
+import cc2.g0.MoveWrapper;
 import cc2.sim.Point;
 import cc2.sim.Shape;
 import cc2.sim.Dough;
@@ -172,8 +173,34 @@ public class Player implements cc2.sim.Player {
 					minidx = s;
 		}
 		// find all valid cuts
-		ArrayList <Move> moves = new ArrayList <Move> ();
-		
+//		ArrayList <Move> moves = new ArrayList <Move> ();
+
+        PriorityQueue<MoveWrapper> moves = new PriorityQueue<MoveWrapper>(
+                new Comparator<MoveWrapper>()
+                {
+                    public int compare( MoveWrapper x, MoveWrapper y )
+                    {
+                        if(y.cutter_size != x.cutter_size) {
+                            return y.cutter_size - x.cutter_size;
+                        }
+                        else if ( (y.sum11 - x.sum11 ) != 0)
+                        {
+                            return (y.sum11 - x.sum11);
+                        }
+                        else if ( (y.sum8 - x.sum8 ) != 0)
+                        {
+                            return (y.sum8 - x.sum8);
+                        }
+                        else if ( (y.sum5 - x.sum5 ) != 0)
+                        {
+                            return (y.sum5 - x.sum5);
+                        }
+                        else
+                        {
+                            return 0;
+                        }
+                    }
+                });
 
 		int difference = Integer.MIN_VALUE;
 		for (int si = 0 ; si != shapes.length ; ++si) {
@@ -213,17 +240,21 @@ public class Player implements cc2.sim.Player {
 								s1.addAll(set0.get(idx));
 								o2.addAll(opponent_set0.get(idx));
 							}
+                            int sum11 = o0.size()*11 - s0.size()*11*11/s.size()/s.size();
+                            int sum8 = o1.size()*8 - s1.size()*8*8/s.size()/s.size();
+                            int sum5 = o2.size()*5 - s2.size()*5*5/s.size()/s.size();
 							sum = s.size() + o0.size()*11+o1.size()*8+o2.size()*5
 									- (s0.size()*11*11/s.size()/s.size()+s1.size()*8*8/s.size()/s.size()+s2.size()*5*5/s.size()/s.size());
 							
 							if (sum > difference){
 								difference = sum;
 								moves.clear();
-								moves.add(new Move(si, ri, p));
-								
+//								moves.add(new Move(si, ri, p));
+                                moves.offer(new MoveWrapper(new Move(si, ri, p), sum11, sum8, sum5, s.size()));
 							}
 							else if (sum == difference){
-								moves.add(new Move(si, ri, p));
+//								moves.add(new Move(si, ri, p));
+                                moves.offer(new MoveWrapper(new Move(si, ri, p), sum11, sum8, sum5, s.size()));
 							}
 						}
 					}
@@ -234,8 +265,9 @@ public class Player implements cc2.sim.Player {
 		}
 		// return a cut randomly
 		
-		Move rand_move = moves.get(gen.nextInt(moves.size()));
-		return rand_move;
+        return moves.peek().move;
+//		Move rand_move = moves.get(gen.nextInt(moves.size()));
+//		return rand_move;
 	}
 
 }

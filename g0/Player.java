@@ -264,7 +264,7 @@ public class Player implements cc2.sim.Player {
 //				break;
 		}
 		// return a cut randomly
-		
+
         return moves.peek().move;
 //		Move rand_move = moves.get(gen.nextInt(moves.size()));
 //		return rand_move;

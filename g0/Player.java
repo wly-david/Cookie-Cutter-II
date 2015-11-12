@@ -237,7 +237,7 @@ public class Player implements cc2.sim.Player {
 								s1.addAll(set0.get(idx));
 								o1.addAll(opponent_set0.get(idx));
 								idx = 2 * side * side + (p.i+q.i) * side + p.j+q.j;
-								s1.addAll(set0.get(idx));
+								s2.addAll(set0.get(idx));
 								o2.addAll(opponent_set0.get(idx));
 							}
                             int sum11 = o0.size()*11 - s0.size()*11*11/s.size()/s.size();

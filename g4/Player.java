@@ -122,7 +122,7 @@ public class Player implements cc2.sim.Player {
         for (count = 0; count < length - 1; count++) {
           cutter[count] = new Point(count, 0);
         }
-        cutter[count] = new Point(gen.nextInt(count), 1);
+        cutter[count] = new Point(gen.nextInt(count - 1) + 1, 1);
         shape = new Shape(cutter);
       }
       System.out.println("g4 (2) " + length + ": " + shape);
@@ -156,21 +156,16 @@ public class Player implements cc2.sim.Player {
     // System.out.println("Our move: ("+cut.shape+", "+cut.rotation+", "+cut.point+")");
     lastDough.cut(shapes[cut.shape].rotations()[cut.rotation], cut.point);
 
+    locations11.add(cut.point);
     return cut;
   }
 
   public Move realCut(Dough dough, Shape[] shapes, Shape[] opponent_shapes)
   {
     boolean oppPlayed = getOppMove(dough, opponent_shapes);
-    // prune larger shapes if initial move
+    // put smallest shape in middle if initial move
     if (dough.uncut()) {
-      int min = Integer.MAX_VALUE;
-      for (Shape s : shapes)
-        if (min > s.size())
-          min = s.size();
-      for (int s = 0 ; s != shapes.length ; ++s)
-        if (shapes[s].size() != min)
-          shapes[s] = null;
+      return new Move(2, 0, new Point(dough.side()/2, dough.side()/2));
     }
     // find all valid cuts
     ArrayList <Move> moves = new ArrayList <Move> ();
@@ -199,27 +194,39 @@ public class Player implements cc2.sim.Player {
       if (oppPlayed) {
         return aggressiveCut(shapes, opponent_shapes, idealMoves);
       }
-      // return idealMoves.get(idealMoves.size() - 1);
-      // return idealMoves.get(0);
     }
-    Move move = moves.get(0);
-    Shape s = shapes[move.shape];
-    if (s.size() == 5) {
-      for (Move m : moves) {
-        boolean reserved = false;
-        for (Point p : locations11) {
-          if (m.point.i>=p.i && m.point.i<p.i+2 && m.point.j>=p.j && m.point.j<p.j+2) {
-            reserved = true;
-            break;
-          }
-        }
-        if (!reserved) {
-          System.out.println("\nasdfsadfasd\n");
-          return m;
-        }
+    int bestScore = -1;
+    Move bestMove = null;
+    for (Move m : moves) {
+      int score = scoreMove(dough, m, shapes, opponent_shapes);
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = m;
       }
     }
-    return move;
+    System.out.println(bestScore);
+    System.out.println(bestMove.point.i);
+    System.out.println(bestMove.point.j);
+    return bestMove;
+
+    // Move move = moves.get(0);
+    // Shape s = shapes[move.shape];
+    // if (s.size() == 5) {
+    //   for (Move m : moves) {
+    //     boolean reserved = false;
+    //     for (Point p : locations11) {
+    //       if (m.point.i>=p.i && m.point.i<p.i+2 && m.point.j>=p.j && m.point.j<p.j+2) {
+    //         reserved = true;
+    //         break;
+    //       }
+    //     }
+    //     if (!reserved) {
+    //       System.out.println("\nasdfsadfasd\n");
+    //       return m;
+    //     }
+    //   }
+    // }
+    // return move;
   }
 
   private boolean isIdeal(Dough dough, int rotation, int i, int j) {
@@ -270,11 +277,6 @@ public class Player implements cc2.sim.Player {
     }
     points[points.length - 1] = new Point(1, hockeySide == 0 ? points.length - 2 : 0);
     backup8shapes.add(new Shape(points));
-
-    for (int i = 0; i < points.length; i++) {
-      points[i] = new Point(i / 4, i % 4);
-    }
-    backup8shapes.add(new Shape(points));
   }
   
   private void populateBackup5Shapes() {
@@ -319,22 +321,46 @@ public class Player implements cc2.sim.Player {
    * Get the most aggressive move. Designed for 11 shapes
    * @param  moves: possible move to choose from
    */
-  private Move aggressiveCut(Shape[] shapes, Shape[] opponent_shapes, ArrayList<Move> moves) {
+  private Move aggressiveCut(Shape[] shapes, Shape[] opponent_shapes, ArrayList<Move> moves) { 
+   ArrayList<Move> rank1 = new ArrayList<>();
+   ArrayList<Move> rank2 = new ArrayList<>();
     Move m1 = oppMoves.get(oppMoves.size() - 1);  // opponent last move
 
-    Set<Point> aggressivePoints = getAggressivePoints(opponent_shapes[m1.shape].rotations()[m1.rotation], m1.point);
+    Set<Point> aggressivePoints = getAggressivePoints(opponent_shapes[m1.shape].rotations()[m1.rotation], m1.point, true);
     for (Move move : moves) {
-      Set<Point> ourPoints = getAggressivePoints(shapes[move.shape].rotations()[move.rotation], move.point);
-      for (Point p : ourPoints) {
-        if (aggressivePoints.contains(p)) {
-          System.out.println("found aggressive move!");
-          locations11.add(move.point);
-          return move;
+      Set<Point> ourPoints = getAggressivePoints(shapes[move.shape].rotations()[move.rotation], move.point, false);
+
+      int count = 0;
+      for (Point p1 : ourPoints) {
+        for (Point p2 : aggressivePoints) {
+          if (p1.equals(p2)) {
+            count++;
+          }
         }
+      }
+
+      if (count > 1) {
+        rank1.add(move);
+      } else if (count > 0) {
+        rank2.add(move);
       }
     }
 
-    System.out.println("can't find aggressive move");
+    System.out.println("rank1 " + rank1.size());
+    System.out.println("rank2 " + rank2.size());
+    if (rank1.size() > 3) {
+      int index = 1 + (int)(Math.random() * (3 - 1));
+      System.out.println("aggressive " + index);
+      return rank1.get(index);
+    }
+
+    if (!rank1.isEmpty()) {
+      return rank1.get(0);
+    }
+    if (!rank2.isEmpty()) {
+      return rank2.get(0);
+    }
+    // System.out.println("can't find aggressive move");
     return moves.get(0);
   }
 
@@ -345,11 +371,15 @@ public class Player implements cc2.sim.Player {
   /**
    * Get the neighbors of a shape at point q
    */
-  private Set<Point> getAggressivePoints(Shape shape, Point q) {
+  private Set<Point> getAggressivePoints(Shape shape, Point q, boolean getNeighbors) {
     Set<Point> res = new HashSet<Point>();
     for (Point p : shape) {
       Point target = new Point(p.i + q.i, p.j + q.j);
-      Collections.addAll(res, target.neighbors());
+      if (getNeighbors) {
+        Collections.addAll(res, target.neighbors());
+      } else {
+        res.add(target);
+      }
     }
 
     return res;
@@ -445,17 +475,17 @@ public class Player implements cc2.sim.Player {
     return -1;
   }
 
-  private int findNumberOfPossibleMovesWithShapeAfterCut(Shape shape, Dough d, Move m, Shape[] shapes) {
+  private int scoreOpponentMovesLostAfterCut(
+    Dough d, Move m, Shape[] shapes, Shape[] opp_shapes) {
     int r = 0;
-    Shape s = shapes[m.shape];
-    s = s.rotations()[m.rotation];
+    Shape s = shapes[m.shape].rotations()[m.rotation];
     Iterator<Point> shapePoints = s.iterator();
     Point[] taken = new Point [s.size()];
     int a = 0;
     while (a < s.size()) {
-      taken[a] = shapePoints.next();
-      int x = taken[a].i + m.point.i;
-      int y = taken[a].j + m.point.j;
+      Point p = shapePoints.next();
+      int x = p.i + m.point.i;
+      int y = p.j + m.point.j;
       taken[a] = new Point(x, y);
       a++;
     }
@@ -463,21 +493,48 @@ public class Player implements cc2.sim.Player {
     for (int i = 0 ; i != d.side() ; ++i) {
       for (int j = 0 ; j != d.side() ; ++j) {
         Point p = new Point(i, j);
-        for (int k = 0 ; k != s.size() ; ++k) {
-          if (p.equals(taken[k])) {
-            continue;
-          }
-        }
-        Shape[] rotations = shape.rotations();
-        for (int ri = 0 ; ri != rotations.length ; ++ri) {
-          Shape x = rotations[ri];
-          if (d.cuts(x, p)) {
-            moves++;
+        for (int si = 0 ; si != shapes.length ; ++si) {
+          if (shapes[si] == null) continue;
+          Shape[] rotations = opp_shapes[si].rotations();
+          for (int ri = 0 ; ri != rotations.length ; ++ri) {
+            Shape x = rotations[ri];
+            if (d.cuts(x, p)) {
+              for (int k = 0 ; k != taken.length ; ++k) {
+                if (p.equals(taken[k])) {
+                  moves += x.size();
+                }
+              }
+            }
           }
         }
       }
     }
     return moves;
+  }
+
+  private int findNumberofPossibleMoves(Dough d, Shape[] shapes) {
+    int moves = 0;
+    for (int i = 0 ; i != d.side() ; ++i) {
+      for (int j = 0 ; j != d.side() ; ++j) {
+        Point p = new Point(i, j);
+        for (int si = 0 ; si != shapes.length ; ++si) {
+          if (shapes[si] == null) continue;
+          Shape[] rotations = shapes[si].rotations();
+          for (int ri = 0 ; ri != rotations.length ; ++ri) {
+            Shape s = rotations[ri];
+            if (d.cuts(s, p)) {
+              moves++;
+            }
+          }
+        }
+      }
+    }
+    return moves;
+  }
+
+  private int scoreMove(
+    Dough d, Move m, Shape[] shapes, Shape[] opp_shapes) {
+    return shapes[m.shape].size() + scoreOpponentMovesLostAfterCut(d, m, shapes, opp_shapes);
   }
 
 }

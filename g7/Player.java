@@ -111,7 +111,7 @@ public class Player implements cc2.sim.Player {
     }
 
     private Move useAggressiveStrategy(Dough dough, Shape[] shapes, Shape[] opponent_shapes) {
-        System.out.println("useAggressiveStrategy");
+//        System.out.println("useAggressiveStrategy");
         int side = dough.side();
         count0 =new int [side][side][shapes.length];
         opponent_count0 =new int [side][side][shapes.length];
@@ -248,7 +248,7 @@ public class Player implements cc2.sim.Player {
     }
 
     private Move useSetStrategy(Dough dough, Shape[] shapes, Shape[] opponent_shapes) {
-        System.out.println("useSetStrategy");
+//        System.out.println("useSetStrategy");
         int side = dough.side();
         set0 = new ArrayList<HashSet<Integer>>();
         opponent_set0 = new ArrayList<HashSet<Integer>>();

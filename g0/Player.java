@@ -31,10 +31,28 @@ public class Player implements cc2.sim.Player {
 			row_2 = new boolean [cutter.length - 1];
 			row_2_pos = new int [cutter.length - 1];
 			for(int i = 0 ;i < row_2.length/2; i ++) {
-//				row_2_pos[2*i] = i;
-//				row_2_pos[2*i+1] = row_2.length-1-i;
-				row_2_pos[2*i] = row_2.length-1-i;
-				row_2_pos[2*i+1] = i;
+				if (length == 5) {
+					int y = -1;
+                    for (Point p : shapes[0]) {
+                    	if (p.j == 1){
+                    		y = p.i;
+                    	}
+                    }
+                    if (y < row_2.length%2){
+    					row_2_pos[2*i] = row_2.length-1-i;
+    					row_2_pos[2*i+1] = i;
+                    }
+                    else {
+    					row_2_pos[2*i] = i;
+    					row_2_pos[2*i+1] = row_2.length-1-i;
+                    }
+				}
+				else{
+//					row_2_pos[2*i] = i;
+//					row_2_pos[2*i+1] = row_2.length-1-i;
+					row_2_pos[2*i] = row_2.length-1-i;
+					row_2_pos[2*i+1] = i;
+				}
 			}
 			if (row_2.length%2 == 1)
 				row_2_pos[row_2.length-1] = row_2.length/2;

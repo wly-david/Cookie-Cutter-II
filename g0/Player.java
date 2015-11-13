@@ -73,7 +73,7 @@ public class Player implements cc2.sim.Player {
                         if (min_j > p.j) min_j = p.j;
                         if (max_j < p.j) max_j = p.j;
                     }
-                    if ((Math.abs(max_i - min_i) == 9) || (Math.abs(max_j - min_j) == 9)) {
+                    if ((Math.abs(max_i - min_i) >= 9) || (Math.abs(max_j - min_j) >= 9)) {
                         strategy = Strategy.aggressive;
                         // set strategy
                     } else {
